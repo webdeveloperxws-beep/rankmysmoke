@@ -106,7 +106,7 @@ const Hero = () => {
               </Link>
 
               <p className="hero-subtitle">
-                & SEO For Vape And Smoke Shops
+                Digital Experience & SEO For Vape And Smoke Shops
               </p>
 
               <h1 className="hero-title">
