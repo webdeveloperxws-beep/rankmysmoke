@@ -1,0 +1,17 @@
+<?php
+/**
+ * Rename to rmss-email-config.php and place OUTSIDE public_html.
+ * Do not send your SMTP password through chat or commit this file to Git.
+ */
+return [
+    'smtp' => [
+        'host' => 'smtp.hostinger.com',  // Confirm your provider in email settings
+        'port' => 465,                  // 465 SSL or 587 STARTTLS
+        'username' => 'contact@rankmysmokestore.com',
+        'password' => 'REPLACE_WITH_MAILBOX_PASSWORD',
+    ],
+    'notification' => [
+        'to' => 'contact@rankmysmokestore.com', // Destination mailbox; change if needed
+        'from_name' => 'Rank My Smoke Store Website',
+    ],
+];

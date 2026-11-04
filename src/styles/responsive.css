@@ -1,0 +1,287 @@
+/* Tablet  */
+@media (max-width: 991px) {
+  .hero-title {
+    font-size: 60px;
+    max-width: 100%;
+  }
+  .hero-content .txt {
+    text-align: center;
+    max-width: 100%;
+    margin: auto;
+  }
+  .hero-buttons .btn.btn-primary {
+    width: 320px;
+  }
+  .hero-buttons .btn.btn-secondary {
+    width: 320px;
+  }
+  #home {
+    padding-bottom: 80px;
+  }
+  #services {
+    padding: 55px 0 0 !important;
+  }
+  #services .btn.btn-secondary {
+    width: 320px;
+    margin: 50px auto;
+  }
+  #audit .title {
+    text-align: center;
+    max-width: 100%;
+    margin: auto;
+    font-size: 50px;
+  }
+  .step-row {
+    margin-top: 5rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: start;
+  }
+  .step-audit-box {
+    padding: 20px;
+  }
+  .step-audit-box h2 {
+    font-size: 24px;
+  }
+  .step-audit-box p {
+    font-size: 14px;
+  }
+  .title-med {
+    font-size: 30px;
+    max-width: 100%;
+  }
+  .title-med span {
+    display: unset !important;
+    padding: 4px 11px;
+    margin-left: 5px;
+  }
+  .txt-sm {
+    font-size: 14px;
+  }
+  .step-wrapper-box {
+    padding: 80px 30px;
+  }
+  #audit {
+    padding: 30px 0;
+    padding-top: 80px !important;
+  }
+  #book .book-review-btn {
+    margin-top: 0;
+  }
+  #book {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+  #book .books-stage {
+    min-height: 290px !important;
+  }
+  #book .book-main-wrapper {
+    padding-bottom: 0 !important;
+  }
+  #pricing {
+    padding-top: 0;
+  }
+  #pricing #nav-tab {
+    margin: 40px auto;
+  }
+  #pricing #nav-tab .nav-link {
+    font-size: 15.632px;
+    padding: 18px 14px;
+  }
+  .title {
+    font-size: 50px;
+  }
+  #contact {
+    display: none;
+  }
+  #footer a img {
+    max-width: 250px;
+  }
+}
+
+/* Mobile  */
+@media (max-width: 575px) {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  span,
+  a,
+  button,
+  input,
+  div {
+    letter-spacing: normal !important;
+  }
+  #home a img {
+    max-width: 100px;
+  }
+  #home {
+    padding-top: 30px;
+    padding-bottom: 30px;
+  }
+  .hero-subtitle {
+    font-size: 12px;
+    max-width: 100%;
+    font-weight: 600;
+    min-height: 45px;
+    border-radius: 50px;
+  }
+  .hero-title {
+	font-size: 30px;
+	max-width: 100%;
+	margin: 15px auto;
+}
+.hero-content .txt {
+	font-size: 14px;
+}
+.hero-buttons .btn.btn-primary {
+	width: 70%;
+	font-size: 14px;
+	height: 48px;
+}
+.hero-buttons .btn.btn-secondary {
+	width: 70%;
+	font-size: 14px;
+	height: 48px;
+	margin-top: 10px;
+}
+#stand .title {
+	font-size: 24px;
+}
+.txt-bar {
+	width: max-content;
+}
+.stand-main-row {
+	margin-top: 30px;
+	gap: 0;
+}
+#stand {
+	padding-bottom: 0 !important;
+}
+#services .services-heading-row {
+	flex-direction: column;
+}
+#services .services-title {
+	font-size: 24px !important;
+}
+#services .btn.btn-secondary {
+	width: 70%;
+	margin: 30px auto;
+	height: 48px;
+	font-size: 14px;
+}
+#audit {
+	padding-top: 40px !important;
+}
+#audit .title {
+	font-size: 24px;
+}
+.step-row {
+	margin-top: 1.5rem;
+}
+.step-wrapper-box {
+	height: 600px;
+	margin-bottom: 15px;
+}
+.title-med {
+	font-size: 24px;
+	max-width: 100%;
+}
+.step-audi-main::before {
+	display: none;
+}
+.step-audit-box::before {
+	display: none;
+}
+.step-audi-main {
+	padding-left: 0;
+}
+.step-audit-box h2 {
+	font-size: 20px;
+}
+#book {
+	margin-top: 0 !important;
+	padding-bottom: 80px !important;
+}
+#book .title {
+	font-size: 24px;
+	max-width: 100% !important;
+}
+#faq .faq-center .title {
+	font-size: 24px;
+}
+#faq .faq-center .title br {
+	display: none;
+}
+#faq .faq-cta {
+	margin-top: 24px;
+	min-width: 200px;
+	height: 48px;
+	font-size: 14px;
+}
+#faq .faq-question {
+	font-size: 16px;
+}
+#faq .faq-trigger {
+	min-height: 70px;
+}
+.title {
+	font-size: 24px;
+}
+#pricing #nav-tab {
+	margin: 30px auto;
+}
+#pricing #nav-tab {
+	display: grid;
+	grid-template-columns: repeat(1, 1fr);
+}
+#pricing #nav-tab .nav-link {
+	font-size: 15.632px;
+	padding: 14px 14px;
+}
+.custom-plan-description {
+	font-size: 12px;
+}
+.book-review-btn {
+	margin-top: 30px;
+}
+#client .title {
+	font-size: 24px;
+}
+#booking-appointment {
+	margin-bottom: 40px;
+}
+#footer {
+	padding-top: 30px;
+	padding-bottom: 80px;
+}
+#footer a img {
+	max-width: 100px;
+}
+.step-footer-list li a {
+	text-align: center;
+	font-size: 14px;
+}
+.step-footer-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	padding-top: 15px;
+	padding-bottom: 15px;
+}
+.back-to-home {
+	left: 0;
+	right: 0;
+	max-width: 140px;
+	margin: auto;
+	font-size: 12px;
+}
+#nav-home .step-price-time, #nav-profile .step-price-time {
+	display: block;
+	text-align: center;
+	height: auto;
+}
+}

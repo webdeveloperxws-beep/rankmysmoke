@@ -1,0 +1,260 @@
+#client {
+  padding-top: 120px;
+  padding-bottom: 80px;
+  overflow: hidden;
+}
+
+#client .title {
+  text-align: center;
+  margin: 0 0 55px;
+}
+
+#client .our-client-slider {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  overflow: hidden;
+}
+
+#client .client-marquee-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: clientMarquee var(--marquee-duration) linear infinite;
+}
+
+#client .client-marquee-group {
+  display: flex;
+  align-items: stretch;
+  gap: 20px;
+  flex-shrink: 0;
+  padding-right: 20px;
+}
+
+#client .client-marquee-item {
+  width: 920px;
+  flex: 0 0 920px;
+  display: flex;
+}
+
+#client .client-slide {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+}
+
+#client .client-photo {
+  width: 42%;
+  min-height: 390px;
+  border-radius: 36px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+#client .client-photo img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center top;
+  user-select: none;
+  pointer-events: none;
+}
+
+#client .client-content {
+  flex: 1;
+  min-width: 0;
+  border-radius: 40px;
+  padding: 36px 34px 32px;
+  display: flex;
+  flex-direction: column;
+}
+
+#client .client-content-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 5%;
+  margin-bottom: 35%;
+}
+
+#client .client-meta h3 {
+  margin: 0 0 8px;
+  color: #0c1728;
+  font-family: Poppins, sans-serif;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 100%;
+  letter-spacing: -0.8px;
+}
+
+#client .client-meta p {
+  margin: 0;
+  color: #0c1728;
+  font-family: Poppins, sans-serif;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 100%;
+  letter-spacing: -0.72px;
+}
+
+#client .client-logo {
+  flex-shrink: 0;
+}
+
+#client .client-logo img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  user-select: none;
+  pointer-events: none;
+}
+
+#client .client-quote {
+  margin: auto 0 0;
+  color: #0c1728;
+  font-family: Poppins, sans-serif;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%;
+  letter-spacing: -0.36px;
+}
+
+@keyframes clientMarquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@media (max-width: 1199px) {
+  #client .client-marquee-item {
+    width: 820px;
+    flex-basis: 820px;
+  }
+}
+
+@media (max-width: 991px) {
+  #client {
+    padding-top: 70px;
+    padding-bottom: 55px;
+  }
+
+  #client .title {
+    font-size: 42px;
+    letter-spacing: -1.4px;
+    margin-bottom: 32px;
+  }
+
+  #client .client-marquee-group {
+    gap: 16px;
+    padding-right: 16px;
+  }
+
+  #client .client-marquee-item {
+    width: 700px;
+    flex-basis: 700px;
+  }
+
+  #client .client-photo {
+    width: 38%;
+    min-height: 320px;
+    border-radius: 28px;
+  }
+
+  #client .client-content {
+    border-radius: 28px;
+    padding: 24px 22px;
+  }
+
+  #client .client-content-top {
+    margin-top: 0;
+    margin-bottom: 18px;
+  }
+
+  #client .client-meta h3 {
+    font-size: 24px;
+  }
+
+  #client .client-meta p {
+    font-size: 15px;
+  }
+
+  #client .client-quote {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 575px) {
+  #client {
+    padding-top: 50px;
+    padding-bottom: 40px;
+  }
+
+  #client .title {
+    font-size: 32px;
+    letter-spacing: -1px;
+    margin-bottom: 24px;
+  }
+
+  #client .client-marquee-group {
+    gap: 12px;
+    padding-right: 12px;
+  }
+
+  #client .client-marquee-item {
+    width: calc(100vw - 32px);
+    flex-basis: calc(100vw - 32px);
+  }
+
+  #client .client-slide {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  #client .client-photo {
+    width: 100%;
+    height: 240px;
+    min-height: 240px;
+    border-radius: 24px;
+  }
+
+  #client .client-content {
+    border-radius: 24px;
+    padding: 22px 18px 20px;
+  }
+
+  #client .client-content-top {
+    margin-top: 0;
+    margin-bottom: 24px;
+  }
+
+  #client .client-meta h3 {
+    font-size: 20px;
+  }
+
+  #client .client-meta p {
+    font-size: 13px;
+  }
+
+  #client .client-logo {
+    max-width: 72px;
+  }
+
+  #client .client-logo img {
+    max-width: 72px;
+  }
+
+  #client .client-quote {
+    font-size: 14px;
+    line-height: 130%;
+  }
+}

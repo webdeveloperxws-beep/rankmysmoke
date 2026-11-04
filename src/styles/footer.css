@@ -1,0 +1,246 @@
+#footer {
+  padding: 200px 0;
+  background-image: url("/src/assets/images/footer-bg.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  max-width: 96%;
+  margin: auto;
+  border-radius: 20px;
+  margin-bottom: 30px;
+}
+
+.step-footer-list {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  list-style: none;
+  border-top: 1px solid #fff;
+  padding-top: 30px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid #fff;
+  margin-top: 30px;
+}
+
+.step-footer-list li a {
+  color: #d9d9d9;
+  font-family: Poppins;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 38.211px;
+  text-decoration: none;
+}
+
+.footer-contact-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  width: 100%;
+  margin-top: 22px;
+  min-height: 45px;
+}
+
+.footer-contact {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  text-align: center;
+  grid-column: 2;
+}
+
+.footer-contact a {
+  color: #d9d9d9;
+  font-family: Poppins;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 38.211px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.footer-contact a:hover {
+  color: #ffffff;
+}
+
+.footer-social-links {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.footer-social-left {
+  justify-self: start;
+  grid-column: 1;
+}
+
+.footer-social-right {
+  justify-self: end;
+  grid-column: 3;
+}
+
+.footer-social-links a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.footer-social-links a:hover {
+  transform: translateY(-2px);
+}
+
+.footer-social-links img {
+  width: auto;
+  max-width: 100%;
+  max-height: 22px;
+  height: auto;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+}
+
+.footer-social-pinterest-link {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  color: #ffffff;
+}
+
+.footer-social-pinterest {
+  display: inline-block;
+  width: 22px;
+  font-size: 22px;
+  line-height: 1;
+  color: #ffffff;
+}
+
+.back-to-home {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 18px;
+  border: none;
+  background: #16a2c8;
+  color: #fff;
+  font-family: Poppins;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 57px;
+  transition: all 0.3s ease;
+}
+
+.back-to-home:hover {
+  background: #16a2c8;
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 991px) {
+  .footer-contact-row {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .footer-social-left {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: center;
+  }
+
+  .footer-contact {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .footer-social-right {
+    grid-column: 1;
+    grid-row: 3;
+    justify-self: center;
+  }
+}
+
+@media (max-width: 767px) {
+  #footer {
+    padding: 100px 20px;
+    max-width: calc(100% - 20px);
+  }
+
+  .step-footer-list {
+    flex-wrap: wrap;
+    gap: 10px 20px;
+    padding-top: 22px;
+    padding-bottom: 22px;
+  }
+
+  .step-footer-list li a {
+    font-size: 14px;
+    line-height: 28px;
+  }
+
+  .footer-contact-row {
+    margin-top: 18px;
+    gap: 18px;
+  }
+
+  .footer-contact {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .footer-contact a {
+    font-size: 14px;
+    line-height: 28px;
+  }
+
+  .footer-social-links {
+    gap: 18px;
+  }
+
+  .footer-social-links img {
+    width: auto;
+    height: auto;
+    max-height: 30px;
+  }
+
+  .back-to-home {
+    right: 15px;
+    bottom: 15px;
+    font-size: 12px;
+    padding: 9px 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  #footer {
+    padding: 80px 15px;
+  }
+
+  .step-footer-list {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .footer-contact a {
+    font-size: 13px;
+  }
+
+  .footer-social-links {
+    gap: 14px;
+  }
+
+  .footer-social-links img {
+    max-height: 27px;
+  }
+}

@@ -1,0 +1,123 @@
+#audit {
+  padding: 80px 0;
+}
+#audit .title {
+	text-align: center;
+	max-width: 80%;
+	margin: auto;
+	font-size: 80px;
+}
+.step-row {
+	margin-top: 5rem;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+}
+.title-med {
+  color: #fff;
+  font-family: Poppins;
+  font-size: 61.232px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 100%;
+  letter-spacing: -2.449px;
+  max-width: 90%;
+}
+.title-med span {
+  width: 204.107px;
+  height: 66.335px;
+  background: #16a2c8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.txt-sm {
+  color: #fff;
+  font-family: Poppins;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+.step-wrapper-box {
+  background-image: url("/src/assets/images/audit_img.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 80px 40px;
+  border-radius: 31.919px;
+  height: 667px;
+  position: relative;
+}
+.step-content-wrapper {
+  transform: translateY(320px);
+}
+.step-audi-main {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding-left: 40px;
+}
+.step-audi-main::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 16.902px;
+  background: #d9d9d9;
+  border-radius: 30.731px;
+}
+.step-audit-box {
+  position: relative;
+  border-radius: 30.731px;
+  border: 1.537px solid #e5e5e5;
+  padding: 30px;
+  background: transparent;
+  transition: 0.3s all linear;
+}
+.step-audit-box::before {
+  content: "";
+  position: absolute;
+  left: -41px;
+  top: 0;
+  bottom: 0;
+  width: 16.902px;
+  background: #16a2c8;
+  border-radius: 30.731px;
+  opacity: 0;
+  transition: 0.3s all linear;
+}
+.step-audit-box.active,
+.step-audit-box:hover {
+  background-color: #fff592;
+}
+.step-audit-box.active::before,
+.step-audit-box:hover::before {
+  opacity: 1;
+}
+.step-audi-main:hover .step-audit-box.active:not(:hover) {
+  background-color: transparent;
+}
+.step-audi-main:hover .step-audit-box.active:not(:hover)::before {
+  opacity: 0;
+}
+.step-audit-box h2 {
+  color: #0c1728;
+  font-family: Poppins;
+  font-size: 30px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 150%;
+  letter-spacing: -1px;
+}
+.step-audit-box p {
+  color: #0c1728;
+  font-family: Poppins;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  margin: 0;
+}

@@ -1,0 +1,13 @@
+.cnt-title {
+	text-align: center;
+	font-family: Poppins;
+	font-size: 100px;
+	font-style: normal;
+	font-weight: 700;
+	line-height: 90%;
+	letter-spacing: -5.323px;
+	background: linear-gradient(180deg, #CBC04D -248.75%, #FFF 100%);
+	background-clip: text;
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
