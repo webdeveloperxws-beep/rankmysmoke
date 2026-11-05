@@ -38,6 +38,67 @@ const Hero = () => {
         },
       });
 
+      tl.to(
+        ".top_logo",
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.55,
+        },
+        0,
+      );
+
+      tl.to(
+        ".hero-subtitle",
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.4,
+        },
+        0.1,
+      );
+
+      tl.to(
+        ".hero-title",
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+        },
+        0.2,
+      );
+
+      tl.to(
+        ".hero_image",
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.55,
+        },
+        0.3,
+      );
+
+      tl.to(
+        ".txt",
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.4,
+        },
+        0.4,
+      );
+
+      tl.to(
+        ".hero-buttons .btn",
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.4,
+          stagger: 0.08,
+        },
+        0.5,
+      );
+
       tl.to(".top_logo", {
         opacity: 1,
         y: 0,
@@ -100,8 +161,9 @@ const Hero = () => {
               <Link to="/">
                 <img
                   src={heroImage}
-                  alt="Top Logo"
+                  alt="Rank My Smoke Store logo"
                   className="img-fluid top_logo d-block mx-auto"
+                  decoding="async"
                 />
               </Link>
 
@@ -110,14 +172,17 @@ const Hero = () => {
               </p>
 
               <h1 className="hero-title">
-                <span>Build</span> a Better Website. Rank <span>Higher</span>.
-                Turn Searches Into <span>Sales.</span>
+                <span>Build</span> a Better Vape & Smoke Shop Website. Rank{" "}
+                <span>Higher</span>. Turn Searches Into <span>Sales.</span>
               </h1>
 
               <img
                 src={topImage}
-                alt="Top Image"
+                alt="Vape and smoke shop brand logos"
                 className="img-fluid hero_image"
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
               />
 
               <p className="txt">

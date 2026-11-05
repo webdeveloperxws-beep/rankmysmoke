@@ -1,8 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { gsap } from "gsap";
-import * as pdfjsLib from "pdfjs-dist";
-import PdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?worker&inline";
 import strioBook from "../assets/images/strio_img01.webp";
 import discoverVapesBook from "../assets/images/discover_img02.webp";
 import vapesticsBook from "../assets/images/vapestics_img03.webp";
@@ -22,16 +20,26 @@ import seoOne from "../assets/pdf/seo1.pdf?url";
 import seoTwo from "../assets/pdf/seo2.pdf?url";
 import seoThree from "../assets/pdf/seo3.pdf?url";
 
-let sharedPdfWorker = null;
+let pdfViewerRuntimePromise = null;
 
-const ensurePdfWorker = () => {
-  if (!sharedPdfWorker) {
-    sharedPdfWorker = new PdfWorker();
+const loadPdfViewerRuntime = () => {
+  if (!pdfViewerRuntimePromise) {
+    pdfViewerRuntimePromise = Promise.all([
+      import("pdfjs-dist"),
+      import("pdfjs-dist/build/pdf.worker.min.mjs?worker&inline"),
+    ])
+      .then(([pdfjsLib, workerModule]) => {
+        const sharedPdfWorker = new workerModule.default();
+        pdfjsLib.GlobalWorkerOptions.workerPort = sharedPdfWorker;
+        return pdfjsLib;
+      })
+      .catch((error) => {
+        pdfViewerRuntimePromise = null;
+        throw error;
+      });
   }
 
-  if (pdfjsLib.GlobalWorkerOptions.workerPort !== sharedPdfWorker) {
-    pdfjsLib.GlobalWorkerOptions.workerPort = sharedPdfWorker;
-  }
+  return pdfViewerRuntimePromise;
 };
 
 const PdfCanvasViewer = ({ pdf, title }) => {
@@ -53,33 +61,20 @@ const PdfCanvasViewer = ({ pdf, title }) => {
       setStatus("loading");
 
       try {
-        ensurePdfWorker();
+        const pdfjsLib = await loadPdfViewerRuntime();
+        if (disposed) return;
 
-        const response = await fetch(pdf, {
-          method: "GET",
-          cache: "no-store",
-          credentials: "same-origin",
+        loadingTask = pdfjsLib.getDocument({
+          url: pdf,
+          rangeChunkSize: 64 * 1024,
         });
-
-        if (!response.ok) {
-          throw new Error(`PDF request failed with status ${response.status}`);
-        }
-
-        const pdfBuffer = await response.arrayBuffer();
-
-        if (!pdfBuffer.byteLength) {
-          throw new Error("PDF response was empty");
-        }
-
-        const pdfBytes = new Uint8Array(pdfBuffer);
-        loadingTask = pdfjsLib.getDocument({ data: pdfBytes });
         pdfDocument = await loadingTask.promise;
 
         if (disposed) return;
 
         const deviceScale =
           typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
-        const renderScale = Math.min(2.6, Math.max(2, deviceScale * 1.35));
+        const renderScale = Math.min(2, Math.max(1, deviceScale));
 
         for (
           let pageNumber = 1;
@@ -713,6 +708,8 @@ const Book = () => {
                 alt={book.alt}
                 className="book-image"
                 draggable="false"
+                loading="lazy"
+                decoding="async"
               />
 
               <span className="book-open-hint">

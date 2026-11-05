@@ -256,7 +256,7 @@
 }
 #footer {
 	padding-top: 30px;
-	padding-bottom: 80px;
+	padding-bottom: 20px;
 }
 #footer a img {
 	max-width: 100px;
@@ -273,11 +273,24 @@
 	padding-bottom: 15px;
 }
 .back-to-home {
-	left: 0;
-	right: 0;
+	position: relative;
+	display: flex;
+	width: max-content;
+	left: auto;
+	right: auto;
+	bottom: auto;
 	max-width: 140px;
-	margin: auto;
+	margin: 0;
 	font-size: 12px;
+}
+.footer-back-to-home {
+	position: relative;
+	right: auto;
+	bottom: auto;
+	display: flex;
+	justify-content: center;
+	width: 100%;
+	margin: 18px auto 0;
 }
 #nav-home .step-price-time, #nav-profile .step-price-time {
 	display: block;

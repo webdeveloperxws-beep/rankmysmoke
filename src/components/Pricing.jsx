@@ -418,18 +418,23 @@ const Pricing = () => {
 
       const result = await response.json().catch(() => ({}));
       if (!response.ok || !result.success) {
-        throw new Error(result.message || "Could not send your proposal request.");
+        throw new Error(
+          result.message || "Could not send your proposal request.",
+        );
       }
 
       setProposalStatus({
         type: "success",
-        message: "Request sent successfully! Our team will contact you shortly.",
+        message:
+          "Request sent successfully! Our team will contact you shortly.",
       });
     } catch (error) {
       setProposalStatus({
         type: "error",
         message:
-          error instanceof Error ? error.message : "Unable to submit. Please try again.",
+          error instanceof Error
+            ? error.message
+            : "Unable to submit. Please try again.",
       });
     } finally {
       setIsSubmittingProposal(false);
@@ -694,8 +699,8 @@ const Pricing = () => {
               <div className="pricing-table-scroll">
                 <ul className="step-pricing monthly-pricing-table">
                   <li className="main-service-column">
-                    <div className="step-price-time">
-                      <h3>&nbsp;</h3>
+                    <div className="step-price-time" aria-hidden="true">
+                      <span>&nbsp;</span>
                       <p>&nbsp;</p>
                     </div>
 
@@ -971,7 +976,12 @@ const Pricing = () => {
                           >
                             <div className="addon-service-item">
                               <div className="addon-service-icon">
-                                <img src={item.icon} alt={item.title} />
+                                <img
+                                  src={item.icon}
+                                  alt={item.title}
+                                  loading="lazy"
+                                  decoding="async"
+                                />
                               </div>
                               <div className="addon-service-info">
                                 <h4>{item.title}</h4>
@@ -996,7 +1006,12 @@ const Pricing = () => {
                           >
                             <div className="addon-service-item">
                               <div className="addon-service-icon">
-                                <img src={item.icon} alt={item.title} />
+                                <img
+                                  src={item.icon}
+                                  alt={item.title}
+                                  loading="lazy"
+                                  decoding="async"
+                                />
                               </div>
                               <div className="addon-service-info">
                                 <h4>{item.title}</h4>
@@ -1028,7 +1043,12 @@ const Pricing = () => {
                           >
                             <div className="custom-plan-card-top">
                               <div className="custom-plan-card-icon">
-                                <img src={service.icon} alt={service.title} />
+                                <img
+                                  src={service.icon}
+                                  alt={service.title}
+                                  loading="lazy"
+                                  decoding="async"
+                                />
                               </div>
                               <div className="custom-plan-card-title-area">
                                 <h3>{service.title}</h3>
@@ -1164,7 +1184,12 @@ const Pricing = () => {
                                 key={service.id}
                               >
                                 <div className="custom-plan-selected-icon">
-                                  <img src={service.icon} alt={service.title} />
+                                  <img
+                                    src={service.icon}
+                                    alt={service.title}
+                                    loading="lazy"
+                                    decoding="async"
+                                  />
                                 </div>
                                 <div className="custom-plan-selected-text">
                                   <h4>{service.title}</h4>

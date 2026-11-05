@@ -65,7 +65,13 @@ const ClientCard = ({ client }) => {
     <div className="client-marquee-item">
       <div className="client-slide">
         <div className="client-photo">
-          <img src={client.image} alt={client.name} draggable="false" />
+          <img
+            src={client.image}
+            alt={client.name}
+            draggable="false"
+            loading="lazy"
+            decoding="async"
+          />
         </div>
 
         <div
@@ -83,6 +89,8 @@ const ClientCard = ({ client }) => {
                 src={client.logoImage}
                 alt={`${client.name} logo`}
                 draggable="false"
+                loading="lazy"
+                decoding="async"
               />
             </div>
           </div>

@@ -75,7 +75,13 @@ const Stand = () => {
         <div className="row">
           <div className="col-sm-12">
             <div className="step-box">
-              <img src={multiImg} alt="Multi Img" className="img-fluid" />
+              <img
+                src={multiImg}
+                alt="Collage of vape shop interiors, retail displays, and people"
+                className="img-fluid"
+                loading="lazy"
+                decoding="async"
+              />
 
               <p>40+ Stores Built</p>
             </div>

@@ -334,7 +334,12 @@ const Services = () => {
                 </div>
 
                 <div className="service-image">
-                  <img src={service.image} alt={service.title} loading="lazy" />
+                  <img
+                    src={service.image}
+                    alt={service.title}
+                    loading="lazy"
+                    decoding="async"
+                  />
                 </div>
               </div>
             </SwiperSlide>

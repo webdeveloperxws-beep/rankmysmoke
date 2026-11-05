@@ -40,7 +40,7 @@
   line-height: normal;
 }
 .step-wrapper-box {
-  background-image: url("/src/assets/images/audit_img.webp");
+  background-image: url("../assets/images/audit_img.webp");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
