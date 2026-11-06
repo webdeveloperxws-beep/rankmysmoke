@@ -37,10 +37,11 @@
 	font-size: 85px;
 	font-style: normal;
 	font-weight: 700;
-	line-height: 90%;
+	line-height: 94%;
 	letter-spacing: -3.6px;
-	max-width: 80%;
+	max-width: min(92%, 1100px);
 	margin: 35px auto;
+	text-wrap: balance;
 }
 .hero-title span {
 	color: #16A2C8;
