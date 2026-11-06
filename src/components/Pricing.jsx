@@ -362,18 +362,6 @@ const Pricing = () => {
     }
   };
 
-  const getSelectedServicesSummary = () =>
-    selectedPriorities
-      .map((service, index) => {
-        const selectedValue =
-          service.type === "counter"
-            ? `${service.label}: ${counts[service.id]}`
-            : service.type === "simple"
-              ? "Selected Option: Included"
-              : `Selected Option: ${selectedOptions[service.id] || "Not selected"}`;
-        return `${index + 1}. ${service.title} - ${selectedValue}`;
-      })
-      .join("\n");
 
   const handleProposalSubmit = async (event) => {
     event.preventDefault();

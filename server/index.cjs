@@ -19,12 +19,16 @@ app.use((req, res, next) => {
 });
 
 app.use(compression());
+
 const allowedOrigins = new Set([
   "https://rankmysmokestore.com",
   "https://www.rankmysmokestore.com",
   "http://localhost:5173",
   "http://127.0.0.1:5173",
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
 ]);
+
 function cleanText(value, maxLength) {
   if (typeof value !== "string") return null;
   const text = value.replace(/[\u0000-\u001F\u007F]/g, " ").trim();
@@ -70,12 +74,10 @@ function limitRequests(req, res, next) {
   );
   if (recent.length >= 8) {
     res.setHeader("Retry-After", "3600");
-    return res
-      .status(429)
-      .json({
-        success: false,
-        message: "Too many submissions. Please try again later.",
-      });
+    return res.status(429).json({
+      success: false,
+      message: "Too many submissions. Please try again later.",
+    });
   }
   recent.push(now);
   submissions.set(ip, recent);
@@ -169,12 +171,10 @@ app.post(
       !/^[0-9+().\s-]{7,40}$/.test(phone) ||
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
     ) {
-      return res
-        .status(422)
-        .json({
-          success: false,
-          message: "Enter a valid name, phone number and email address.",
-        });
+      return res.status(422).json({
+        success: false,
+        message: "Enter a valid name, phone number and email address.",
+      });
     }
     if (
       !Array.isArray(input.services) ||
@@ -208,23 +208,19 @@ app.post(
         !["counter", "select", "simple"].includes(type) ||
         seen.has(title)
       ) {
-        return res
-          .status(422)
-          .json({
-            success: false,
-            message: "Invalid selected service details.",
-          });
+        return res.status(422).json({
+          success: false,
+          message: "Invalid selected service details.",
+        });
       }
       if (
         type === "counter" &&
         (!/^\d+$/.test(value) || Number(value) < 1 || Number(value) > 10000)
       ) {
-        return res
-          .status(422)
-          .json({
-            success: false,
-            message: "Quantity must be between 1 and 10000.",
-          });
+        return res.status(422).json({
+          success: false,
+          message: "Quantity must be between 1 and 10000.",
+        });
       }
       selected.push({ title, label, value });
       seen.add(title);
@@ -240,22 +236,18 @@ app.post(
       console.error(
         "RMSS proposal: missing required SMTP environment variable(s)",
       );
-      return res
-        .status(503)
-        .json({
-          success: false,
-          message: "Email service is not configured. Please contact support.",
-        });
+      return res.status(503).json({
+        success: false,
+        message: "Email service is not configured. Please contact support.",
+      });
     }
     const smtpPort = Number(process.env.SMTP_PORT);
     if (![465, 587].includes(smtpPort)) {
       console.error("RMSS proposal: invalid SMTP_PORT");
-      return res
-        .status(503)
-        .json({
-          success: false,
-          message: "Email service is not configured. Please contact support.",
-        });
+      return res.status(503).json({
+        success: false,
+        message: "Email service is not configured. Please contact support.",
+      });
     }
     const reference = crypto.randomBytes(4).toString("hex").toUpperCase();
     const time = new Date().toISOString();
@@ -288,12 +280,10 @@ app.post(
         text: textBody,
         html: htmlBody,
       });
-      return res
-        .status(201)
-        .json({
-          success: true,
-          message: "Your proposal request was submitted successfully.",
-        });
+      return res.status(201).json({
+        success: true,
+        message: "Your proposal request was submitted successfully.",
+      });
     } catch (err) {
       console.error(
         "RMSS proposal: SMTP sending failed; reference=" +
@@ -301,13 +291,103 @@ app.post(
           "; code=" +
           String(err.code || "unknown"),
       );
-      return res
-        .status(502)
-        .json({
-          success: false,
-          message:
-            "Unable to send your request right now. Please try again or contact us directly.",
-        });
+      return res.status(502).json({
+        success: false,
+        message:
+          "Unable to send your request right now. Please try again or contact us directly.",
+      });
+    }
+  },
+);
+
+// --- Blog view tracking (durable JSON file; separate from proposal SMTP API) ---
+const blogViewsFile =
+  process.env.BLOG_VIEWS_FILE ||
+  path.join(projectRoot, "data", "blog-views.json");
+const blogViewDebounceMs = 30 * 60 * 1000;
+const blogViewRecent = new Map();
+const crawlerUa =
+  /googlebot|bingbot|yandexbot|duckduckbot|baiduspider|facebookexternalhit|twitterbot|linkedinbot|slurp|applebot|semrushbot|ahrefsbot|dotbot|mj12bot|gptbot|claudebot|bytespider|wget|curl\/|python-requests|headlesschrome/i;
+
+function readBlogViews() {
+  try {
+    if (!fs.existsSync(blogViewsFile)) return { updatedAt: null, views: {} };
+    const raw = JSON.parse(fs.readFileSync(blogViewsFile, "utf8"));
+    if (!raw || typeof raw !== "object" || typeof raw.views !== "object") {
+      return { updatedAt: null, views: {} };
+    }
+    return raw;
+  } catch (error) {
+    console.error("RMSS blog views: unable to read store", error.message || error);
+    return { updatedAt: null, views: {} };
+  }
+}
+
+function writeBlogViews(store) {
+  const dir = path.dirname(blogViewsFile);
+  fs.mkdirSync(dir, { recursive: true });
+  const tmp = blogViewsFile + ".tmp";
+  fs.writeFileSync(tmp, JSON.stringify(store, null, 2), "utf8");
+  fs.renameSync(tmp, blogViewsFile);
+}
+
+function isValidBlogSlug(slug) {
+  return typeof slug === "string" && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) && slug.length <= 120;
+}
+
+app.get("/api/blog-trending", (req, res) => {
+  res.setHeader("Cache-Control", "public, max-age=60");
+  const limit = Math.min(20, Math.max(1, Number(req.query.limit) || 5));
+  const store = readBlogViews();
+  const ranked = Object.entries(store.views || {})
+    .map(([slug, count]) => ({ slug, views: Number(count) || 0 }))
+    .filter((row) => row.views > 0 && isValidBlogSlug(row.slug))
+    .sort((a, b) => b.views - a.views || a.slug.localeCompare(b.slug))
+    .slice(0, limit);
+
+  if (ranked.length === 0) {
+    return res.json({ ok: true, source: "empty", articles: [] });
+  }
+  return res.json({ ok: true, source: "views", articles: ranked });
+});
+
+app.post(
+  "/api/blog-views",
+  express.json({ limit: "4kb", strict: true }),
+  (req, res) => {
+    res.setHeader("Cache-Control", "no-store");
+    const ua = req.get("user-agent") || "";
+    if (crawlerUa.test(ua)) {
+      return res.status(204).end();
+    }
+    const slug = cleanText(req.body?.slug, 120);
+    if (!slug || !isValidBlogSlug(slug)) {
+      return res.status(400).json({ ok: false, message: "Invalid slug." });
+    }
+
+    const ip = req.ip || req.socket.remoteAddress || "unknown";
+    const key = crypto.createHash("sha256").update(`${ip}|${slug}`).digest("hex");
+    const now = Date.now();
+    const last = blogViewRecent.get(key) || 0;
+    if (now - last < blogViewDebounceMs) {
+      return res.status(200).json({ ok: true, counted: false });
+    }
+    blogViewRecent.set(key, now);
+    if (blogViewRecent.size > 20000) {
+      for (const [k, ts] of blogViewRecent) {
+        if (now - ts >= blogViewDebounceMs) blogViewRecent.delete(k);
+      }
+    }
+
+    try {
+      const store = readBlogViews();
+      store.views[slug] = (Number(store.views[slug]) || 0) + 1;
+      store.updatedAt = new Date().toISOString();
+      writeBlogViews(store);
+      return res.status(200).json({ ok: true, counted: true });
+    } catch (error) {
+      console.error("RMSS blog views: write failed", error.message || error);
+      return res.status(500).json({ ok: false, message: "Unable to record view." });
     }
   },
 );
@@ -318,14 +398,32 @@ app.use("/api", (req, res) =>
 );
 
 // Serve each pre-rendered page before the SPA static/fallback middleware.
-// This preserves page-specific source HTML for crawlers and hydration.
-const prerenderedRoutes = new Map([
-  ["/", "index.html"],
-  ["/privacy-policy", "privacy-policy/index.html"],
-  ["/terms-of-service", "terms-of-service/index.html"],
-  ["/refund-policy", "refund-policy/index.html"],
-  ["/results-disclaimer", "results-disclaimer/index.html"],
-]);
+// Route map is generated by scripts/prerender.mjs (includes all blog URLs).
+function loadPrerenderedRoutes() {
+  const map = new Map([
+    ["/", "index.html"],
+    ["/privacy-policy", "privacy-policy/index.html"],
+    ["/terms-of-service", "terms-of-service/index.html"],
+    ["/refund-policy", "refund-policy/index.html"],
+    ["/results-disclaimer", "results-disclaimer/index.html"],
+  ]);
+  const routeMapFile = path.join(distDir, "prerender-routes.json");
+  if (fs.existsSync(routeMapFile)) {
+    try {
+      const parsed = JSON.parse(fs.readFileSync(routeMapFile, "utf8"));
+      for (const [route, file] of Object.entries(parsed)) {
+        if (typeof route === "string" && typeof file === "string") {
+          map.set(route, file);
+        }
+      }
+    } catch (error) {
+      console.error("RMSS: unable to read prerender-routes.json", error.message || error);
+    }
+  }
+  return map;
+}
+
+const prerenderedRoutes = loadPrerenderedRoutes();
 for (const [route, file] of prerenderedRoutes) {
   app.get(route, (req, res) => {
     if (req.path !== route) {
@@ -366,7 +464,10 @@ app.get("/case-studies/:slug.pdf", (req, res, next) => {
 
   const manifestPath = path.join(distDir, ".vite", "manifest.json");
   if (!fs.existsSync(manifestPath)) {
-    return res.status(503).type("text/plain").send("PDF manifest missing. Run npm run build.");
+    return res
+      .status(503)
+      .type("text/plain")
+      .send("PDF manifest missing. Run npm run build.");
   }
 
   let manifest;
@@ -378,25 +479,35 @@ app.get("/case-studies/:slug.pdf", (req, res, next) => {
   }
 
   // Vite's imported assets normally use source paths as manifest keys.
-  const entry = Object.entries(manifest).find(([key, value]) =>
-    key.split("?")[0] === source &&
-    typeof value?.file === "string" &&
-    value.file.toLowerCase().endsWith(".pdf")
+  const entry = Object.entries(manifest).find(
+    ([key, value]) =>
+      key.split("?")[0] === source &&
+      typeof value?.file === "string" &&
+      value.file.toLowerCase().endsWith(".pdf"),
   );
   const relativeFile = entry?.[1].file;
   // Only permit files inside dist/assets; slugs never become filesystem paths.
   if (!relativeFile || !/^assets\/[A-Za-z0-9_.-]+\.pdf$/i.test(relativeFile)) {
     console.error("RMSS case studies: missing built PDF for", source);
-    return res.status(503).type("text/plain").send("PDF asset missing from build.");
+    return res
+      .status(503)
+      .type("text/plain")
+      .send("PDF asset missing from build.");
   }
 
   const pdfFile = path.join(distDir, relativeFile);
   if (!fs.existsSync(pdfFile)) {
-    return res.status(503).type("text/plain").send("PDF asset missing from build.");
+    return res
+      .status(503)
+      .type("text/plain")
+      .send("PDF asset missing from build.");
   }
 
   res.setHeader("Cache-Control", "public, max-age=3600");
-  res.setHeader("Content-Disposition", `inline; filename="${req.params.slug}.pdf"`);
+  res.setHeader(
+    "Content-Disposition",
+    `inline; filename="${req.params.slug}.pdf"`,
+  );
   return res.type("application/pdf").sendFile(pdfFile);
 });
 
@@ -410,6 +521,19 @@ app.use(
 );
 
 app.use(express.static(distDir, { index: false }));
+
+// Pre-rendered blog HTML lives at dist/blog/, dist/blog/<slug>/, dist/blog/tag/<slug>/ (index.html in each).
+app.use((req, res, next) => {
+  if (req.method !== "GET" && req.method !== "HEAD") return next();
+  const normalized = req.path.replace(/\/+$/, "") || "/";
+  if (!normalized.startsWith("/blog")) return next();
+  const rel = normalized === "/blog" ? "blog" : normalized.slice(1);
+  const filePath = path.join(distDir, rel, "index.html");
+  if (!fs.existsSync(filePath)) return next();
+  res.setHeader("Cache-Control", "no-cache");
+  return res.sendFile(filePath);
+});
+
 // Unknown URLs must not return 200 with the homepage HTML (soft 404).
 app.use((req, res, next) => {
   if (req.method !== "GET" && req.method !== "HEAD") return next();
@@ -450,4 +574,3 @@ const port = Number(process.env.PORT || 3000);
 app.listen(port, "0.0.0.0", () => {
   console.log(`RMSS Vite + Express server listening on port ${port}`);
 });
-

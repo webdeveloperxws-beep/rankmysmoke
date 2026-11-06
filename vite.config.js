@@ -17,5 +17,15 @@ export default defineConfig({
     watch: {
       ignored: ['**/backend/**'],
     },
+    proxy: {
+      '/api/blog-views': {
+        target: 'http://127.0.0.1:3000',
+        changeOrigin: true,
+      },
+      '/api/blog-trending': {
+        target: 'http://127.0.0.1:3000',
+        changeOrigin: true,
+      },
+    },
   },
 })

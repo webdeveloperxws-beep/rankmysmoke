@@ -1,3 +1,4 @@
+
 import { useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -13,11 +14,6 @@ const Hero = () => {
 
   useGSAP(
     () => {
-      gsap.set(".top_logo", {
-        opacity: 0,
-        y: 25,
-      });
-
       gsap.set(
         [
           ".hero-subtitle",
@@ -38,12 +34,16 @@ const Hero = () => {
         },
       });
 
-      tl.to(
+      tl.fromTo(
         ".top_logo",
         {
-          opacity: 1,
-          y: 0,
+          scale: 0.96,
+        },
+        {
+          scale: 1,
           duration: 0.55,
+          ease: "power2.out",
+          clearProps: "transform",
         },
         0,
       );
@@ -98,45 +98,6 @@ const Hero = () => {
         },
         0.5,
       );
-
-      tl.to(".top_logo", {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-      });
-
-      tl.to({}, { duration: 0.15 });
-
-      tl.to(".hero-subtitle", {
-        opacity: 1,
-        y: 0,
-        duration: 0.55,
-      });
-
-      tl.to(".hero-title", {
-        opacity: 1,
-        y: 0,
-        duration: 0.7,
-      });
-
-      tl.to(".hero_image", {
-        opacity: 1,
-        y: 0,
-        duration: 0.7,
-      });
-
-      tl.to(".txt", {
-        opacity: 1,
-        y: 0,
-        duration: 0.5,
-      });
-
-      tl.to(".hero-buttons .btn", {
-        opacity: 1,
-        y: 0,
-        duration: 0.45,
-        stagger: 0.12,
-      });
 
       gsap.to(".hero_image", {
         y: -6,

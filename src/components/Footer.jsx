@@ -5,7 +5,7 @@ import LinkedinIcon from "../assets/images/linkedin.png";
 import TrustpilotIcon from "../assets/images/trust.png";
 import ClutchIcon from "../assets/images/clutch.webp";
 import GoogleIcon from "../assets/images/google.png";
-import PinterestIconAsset from "@fortawesome/fontawesome-free/svgs/brands/pinterest-p.svg";
+const PinterestIconAsset = "/pinterest-p.svg";
 import FooterBackground from "../assets/images/footer-bg.webp";
 
 import { Link, useLocation } from "react-router-dom";
@@ -16,6 +16,8 @@ const PinterestIcon = () => (
     className="footer-social-pinterest"
     alt=""
     aria-hidden="true"
+    loading="lazy"
+    decoding="async"
   />
 );
 
@@ -57,6 +59,9 @@ const Footer = () => {
               </li>
               <li>
                 <Link to="/results-disclaimer">Disclaimer</Link>
+              </li>
+              <li>
+                <Link to="/blog">Blog</Link>
               </li>
             </ul>
 
@@ -167,7 +172,6 @@ const Footer = () => {
                 </a>
               </div>
             </div>
-
           </div>
         </div>
       </div>

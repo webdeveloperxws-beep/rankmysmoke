@@ -18,8 +18,10 @@ import "./styles/client.css";
 import "./styles/contact.css";
 import "./styles/bookingAppointment.css";
 import "./styles/privacy.css";
+import "./styles/blog.css";
 import "./styles/footer.css";
 import "./styles/responsive.css";
+import "./styles/blog.css";
 
 
 const rootElement = document.getElementById("root");
