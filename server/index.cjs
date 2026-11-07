@@ -9,10 +9,13 @@ const nodemailer = require("nodemailer");
 const path = require("node:path");
 const fs = require("node:fs");
 const crypto = require("node:crypto");
+const { createBlogViewsStore } = require("./blog-views-store.cjs");
 const app = express();
 app.disable("x-powered-by");
 const projectRoot = path.resolve(__dirname, "..");
 const distDir = path.join(projectRoot, "dist");
+const blogViewsStore = createBlogViewsStore(projectRoot);
+const publishedBlogSlugs = blogViewsStore.loadPublishedSlugs();
 app.use((req, res, next) => {
   res.setHeader("X-Content-Type-Options", "nosniff");
   next();
@@ -300,95 +303,107 @@ app.post(
   },
 );
 
-// --- Blog view tracking (durable JSON file; separate from proposal SMTP API) ---
-const blogViewsFile =
-  process.env.BLOG_VIEWS_FILE ||
-  path.join(projectRoot, "data", "blog-views.json");
-const blogViewDebounceMs = 30 * 60 * 1000;
-const blogViewRecent = new Map();
+// --- Blog view tracking (durable MySQL or private file; separate from proposal SMTP API) ---
 const crawlerUa =
-  /googlebot|bingbot|yandexbot|duckduckbot|baiduspider|facebookexternalhit|twitterbot|linkedinbot|slurp|applebot|semrushbot|ahrefsbot|dotbot|mj12bot|gptbot|claudebot|bytespider|wget|curl\/|python-requests|headlesschrome/i;
-
-function readBlogViews() {
-  try {
-    if (!fs.existsSync(blogViewsFile)) return { updatedAt: null, views: {} };
-    const raw = JSON.parse(fs.readFileSync(blogViewsFile, "utf8"));
-    if (!raw || typeof raw !== "object" || typeof raw.views !== "object") {
-      return { updatedAt: null, views: {} };
-    }
-    return raw;
-  } catch (error) {
-    console.error("RMSS blog views: unable to read store", error.message || error);
-    return { updatedAt: null, views: {} };
-  }
-}
-
-function writeBlogViews(store) {
-  const dir = path.dirname(blogViewsFile);
-  fs.mkdirSync(dir, { recursive: true });
-  const tmp = blogViewsFile + ".tmp";
-  fs.writeFileSync(tmp, JSON.stringify(store, null, 2), "utf8");
-  fs.renameSync(tmp, blogViewsFile);
-}
+  /bot|spider|crawl|slurp|facebookexternalhit|twitterbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest|redditbot|applebot|semrush|ahrefs|dotbot|mj12bot|gptbot|claudebot|bytespider|wget|curl\/|python-requests|httpclient|headlesschrome|phantomjs|selenium|puppeteer|playwright|lighthouse|chrome-lighthouse|prerender/i;
+const blogViewPosts = new Map();
+const BLOG_VIEW_RATE_LIMIT = 40;
+const BLOG_VIEW_RATE_WINDOW_MS = 60 * 60 * 1000;
 
 function isValidBlogSlug(slug) {
-  return typeof slug === "string" && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) && slug.length <= 120;
+  return (
+    typeof slug === "string" &&
+    /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) &&
+    slug.length <= 120
+  );
 }
 
-app.get("/api/blog-trending", (req, res) => {
-  res.setHeader("Cache-Control", "public, max-age=60");
-  const limit = Math.min(20, Math.max(1, Number(req.query.limit) || 5));
-  const store = readBlogViews();
-  const ranked = Object.entries(store.views || {})
-    .map(([slug, count]) => ({ slug, views: Number(count) || 0 }))
-    .filter((row) => row.views > 0 && isValidBlogSlug(row.slug))
-    .sort((a, b) => b.views - a.views || a.slug.localeCompare(b.slug))
-    .slice(0, limit);
+function isPublishedBlogSlug(slug) {
+  if (!isValidBlogSlug(slug)) return false;
+  // If the slug manifest is missing (e.g. fresh checkout before sync),
+  // still accept syntactically valid slugs rather than blocking all tracking.
+  if (publishedBlogSlugs.size === 0) return true;
+  return publishedBlogSlugs.has(slug);
+}
 
-  if (ranked.length === 0) {
-    return res.json({ ok: true, source: "empty", articles: [] });
+function limitBlogViewRequests(req, res, next) {
+  const now = Date.now();
+  const ip = req.ip || req.socket.remoteAddress || "unknown";
+  const recent = (blogViewPosts.get(ip) || []).filter(
+    (ts) => now - ts < BLOG_VIEW_RATE_WINDOW_MS,
+  );
+  if (recent.length >= BLOG_VIEW_RATE_LIMIT) {
+    res.setHeader("Retry-After", "3600");
+    return res.status(429).json({ ok: false, message: "Too many requests." });
   }
-  return res.json({ ok: true, source: "views", articles: ranked });
+  recent.push(now);
+  blogViewPosts.set(ip, recent);
+  if (blogViewPosts.size > 20000) {
+    for (const [key, times] of blogViewPosts) {
+      if (times.every((ts) => now - ts >= BLOG_VIEW_RATE_WINDOW_MS)) {
+        blogViewPosts.delete(key);
+      }
+    }
+  }
+  return next();
+}
+
+app.get("/api/blog-trending", async (req, res) => {
+  res.setHeader("Cache-Control", "public, max-age=60");
+  const limit = Math.min(10, Math.max(1, Number(req.query.limit) || 3));
+  try {
+    const result = await blogViewsStore.getTrending(limit);
+    const articles = (result.articles || [])
+      .map((row) => ({ slug: row.slug }))
+      .filter((row) => isPublishedBlogSlug(row.slug))
+      .slice(0, limit);
+    if (result.source === "unavailable" || result.ok === false) {
+      return res.json({ ok: false, source: "unavailable", articles: [] });
+    }
+    if (articles.length === 0) {
+      return res.json({ ok: true, source: "empty", articles: [] });
+    }
+    return res.json({ ok: true, source: "views", articles });
+  } catch (error) {
+    console.error("RMSS blog trending failed", error.message || error);
+    return res.json({ ok: false, source: "unavailable", articles: [] });
+  }
 });
 
 app.post(
   "/api/blog-views",
+  (req, res, next) => {
+    res.setHeader("Cache-Control", "no-store, max-age=0");
+    const origin = req.get("origin");
+    if (origin && !allowedOrigins.has(origin)) {
+      return res.status(403).json({ ok: false, message: "Origin not allowed." });
+    }
+    if (!req.is("application/json")) {
+      return res.status(415).json({ ok: false, message: "JSON required." });
+    }
+    next();
+  },
   express.json({ limit: "4kb", strict: true }),
-  (req, res) => {
-    res.setHeader("Cache-Control", "no-store");
+  limitBlogViewRequests,
+  async (req, res) => {
     const ua = req.get("user-agent") || "";
-    if (crawlerUa.test(ua)) {
+    if (!ua || crawlerUa.test(ua)) {
       return res.status(204).end();
     }
     const slug = cleanText(req.body?.slug, 120);
-    if (!slug || !isValidBlogSlug(slug)) {
+    if (!slug || !isPublishedBlogSlug(slug)) {
       return res.status(400).json({ ok: false, message: "Invalid slug." });
     }
 
     const ip = req.ip || req.socket.remoteAddress || "unknown";
-    const key = crypto.createHash("sha256").update(`${ip}|${slug}`).digest("hex");
-    const now = Date.now();
-    const last = blogViewRecent.get(key) || 0;
-    if (now - last < blogViewDebounceMs) {
-      return res.status(200).json({ ok: true, counted: false });
+    const visitorHash = blogViewsStore.hashVisitor(ip, ua);
+    const result = await blogViewsStore.recordView(slug, visitorHash);
+    if (result.unavailable) {
+      return res
+        .status(503)
+        .json({ ok: false, counted: false, message: "View storage unavailable." });
     }
-    blogViewRecent.set(key, now);
-    if (blogViewRecent.size > 20000) {
-      for (const [k, ts] of blogViewRecent) {
-        if (now - ts >= blogViewDebounceMs) blogViewRecent.delete(k);
-      }
-    }
-
-    try {
-      const store = readBlogViews();
-      store.views[slug] = (Number(store.views[slug]) || 0) + 1;
-      store.updatedAt = new Date().toISOString();
-      writeBlogViews(store);
-      return res.status(200).json({ ok: true, counted: true });
-    } catch (error) {
-      console.error("RMSS blog views: write failed", error.message || error);
-      return res.status(500).json({ ok: false, message: "Unable to record view." });
-    }
+    return res.status(200).json({ ok: true, counted: Boolean(result.counted) });
   },
 );
 
@@ -573,4 +588,14 @@ app.use((err, req, res, next) => {
 const port = Number(process.env.PORT || 3000);
 app.listen(port, "0.0.0.0", () => {
   console.log(`RMSS Vite + Express server listening on port ${port}`);
+  console.log(
+    `RMSS blog views store: ${blogViewsStore.kind} @ ${blogViewsStore.location}`,
+  );
+  blogViewsStore.isAvailable().then((ok) => {
+    console.log(
+      ok
+        ? "RMSS blog views store: ready"
+        : "RMSS blog views store: unavailable (Most Viewed will fall back to Recent Articles)",
+    );
+  });
 });

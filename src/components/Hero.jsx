@@ -133,9 +133,8 @@ const Hero = () => {
               </p>
 
               <h1 className="hero-title">
-                <span>Build</span> a Better Vape &amp; Smoke Shop Website That
-                Helps You Rank <span>Higher</span>, Attract Nearby Customers,
-                and Turn Searches Into <span>Sales.</span>
+                <span>Build</span> a Better Vape & Smoke Shop Website. Rank{" "}
+                <span>Higher</span>. Turn Searches Into <span>Sales.</span>
               </h1>
 
               <img

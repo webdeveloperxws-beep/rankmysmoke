@@ -4,8 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build && node scripts/prerender.mjs",
+    "dev": "node scripts/sync-blog-image-availability.mjs && node scripts/sync-blog-published-slugs.mjs && vite",
+    "sync:blog-images": "node scripts/sync-blog-image-availability.mjs",
+    "sync:blog-slugs": "node scripts/sync-blog-published-slugs.mjs",
+    "build": "node scripts/sync-blog-image-availability.mjs && node scripts/sync-blog-published-slugs.mjs && vite build && node scripts/prerender.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "node server/index.cjs"
@@ -18,6 +20,7 @@
     "compression": "^1.8.2",
     "express": "^5.3.0",
     "gsap": "^3.15.0",
+    "mysql2": "^3.24.6",
     "nodemailer": "^10.3.1",
     "pdfjs-dist": "^6.3.289",
     "react": "^19.2.8",

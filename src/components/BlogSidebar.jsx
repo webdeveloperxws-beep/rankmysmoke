@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { formatDate, getArticleImageSrc } from "../blog/data/index.js";
+import BlogImage from "./BlogImage";
+import { formatDate } from "../blog/data/index.js";
 
 function BlogSidebar({
   tags = [],
@@ -32,42 +33,34 @@ function BlogSidebar({
       <div className="blog-sidebar-card">
         <h2 className="blog-sidebar-heading">{listLabel}</h2>
         {recommendedArticles.length === 0 ? (
-          <p className="blog-sidebar-empty">Check back soon for recommendations.</p>
+          <p className="blog-sidebar-empty">
+            Check back soon for recommendations.
+          </p>
         ) : (
           <ul className="blog-recommended-list">
-            {recommendedArticles.map((a) => {
-              const thumb = getArticleImageSrc(a.image);
-              return (
-                <li key={a.slug}>
-                  <Link to={`/blog/${a.slug}`} className="blog-recommended-item">
-                    {thumb ? (
-                      <img
-                        src={thumb}
-                        alt=""
-                        className="blog-recommended-thumb"
-                        width={72}
-                        height={72}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    ) : (
-                      <span
-                        className="blog-recommended-thumb blog-recommended-thumb-placeholder"
-                        aria-hidden="true"
-                      />
-                    )}
-                    <span className="blog-recommended-body">
-                      <span className="blog-recommended-title">{a.title}</span>
-                      {a.publishedAt ? (
-                        <span className="blog-recommended-meta">
-                          {formatDate(a.publishedAt)}
-                        </span>
-                      ) : null}
-                    </span>
-                  </Link>
-                </li>
-              );
-            })}
+            {recommendedArticles.map((a) => (
+              <li key={a.slug}>
+                <Link to={`/blog/${a.slug}`} className="blog-recommended-item">
+                  <BlogImage
+                    article={a}
+                    className="blog-recommended-thumb"
+                    imgClassName="blog-media-img"
+                    alt=""
+                    loading="lazy"
+                    width={72}
+                    height={72}
+                  />
+                  <span className="blog-recommended-body">
+                    <span className="blog-recommended-title">{a.title}</span>
+                    {a.publishedAt ? (
+                      <span className="blog-recommended-meta">
+                        {formatDate(a.publishedAt)}
+                      </span>
+                    ) : null}
+                  </span>
+                </Link>
+              </li>
+            ))}
           </ul>
         )}
       </div>

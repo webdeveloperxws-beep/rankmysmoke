@@ -1,9 +1,10 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import BlogHeader from "../components/BlogHeader";
 import BlogSidebar from "../components/BlogSidebar";
 import BlogJsonLd from "../components/BlogJsonLd";
+import BlogImage from "../components/BlogImage";
 import BlogNotFound from "./BlogNotFound";
 import {
   SITE_URL,
@@ -11,39 +12,25 @@ import {
   getAllTags,
   getRelatedArticles,
   formatDate,
-  getArticleImageSrc,
+  getArticleSocialImageUrl,
 } from "../blog/data/index.js";
 import { useBlogSidebarFeed } from "../hooks/useBlogSidebarFeed.js";
+import { useRecordBlogView } from "../hooks/useRecordBlogView.js";
 
 function BlogArticle() {
   const { slug } = useParams();
   const article = slug ? getArticleBySlug(slug) : undefined;
 
   const tags = useMemo(() => getAllTags(), []);
-  const sidebarFeed = useBlogSidebarFeed(5);
+  const sidebarFeed = useBlogSidebarFeed(3);
   const related = useMemo(() => (article ? getRelatedArticles(article, 3) : []), [article]);
 
-  useEffect(() => {
-    if (!article?.slug) return undefined;
-    const controller = new AbortController();
-    fetch("/api/blog-views", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ slug: article.slug }),
-      signal: controller.signal,
-    }).catch(() => {});
-    return () => controller.abort();
-  }, [article?.slug]);
+  useRecordBlogView(article?.slug);
 
   const articleJsonLd = useMemo(() => {
     if (!article) return null;
     const url = `${SITE_URL}/blog/${article.slug}`;
-    const img = getArticleImageSrc(article.image);
-    const imageUrl = img
-      ? img.startsWith("http")
-        ? img
-        : `${SITE_URL}${img.startsWith("/") ? "" : "/"}${img}`
-      : undefined;
+    const imageUrl = getArticleSocialImageUrl(article);
 
     return {
       "@context": "https://schema.org",
@@ -107,8 +94,6 @@ function BlogArticle() {
     );
   }
 
-  const heroImg = getArticleImageSrc(article.image);
-
   return (
     <>
       {articleJsonLd ? <BlogJsonLd data={articleJsonLd} /> : null}
@@ -147,17 +132,17 @@ function BlogArticle() {
                   <h1 className="blog-article-title">{article.title}</h1>
                 </header>
 
-                {heroImg ? (
-                  <figure className="blog-article-figure">
-                    <img
-                      src={heroImg}
-                      alt={article.imageAlt || ""}
-                      className="blog-article-hero-img"
-                      loading="eager"
-                      decoding="async"
-                    />
-                  </figure>
-                ) : null}
+                <figure className="blog-article-figure">
+                  <BlogImage
+                    article={article}
+                    className="blog-article-hero-media"
+                    loading="eager"
+                    fetchPriority="high"
+                    width={1200}
+                    height={675}
+                    sizes="(max-width: 991px) 100vw, 66vw"
+                  />
+                </figure>
 
                 <div
                   className="blog-prose"

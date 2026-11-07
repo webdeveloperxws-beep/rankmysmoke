@@ -1,9 +1,12 @@
 import { articles as articlesImport } from "./articles.js";
+import { isBlogImageAvailable } from "./available-images.js";
 
 const articles = Array.isArray(articlesImport) ? articlesImport : [];
 
 export const SITE_URL = "https://rankmysmokestore.com";
 export const PAGE_SIZE = 6;
+
+export { isBlogImageAvailable };
 
 function parseIso(iso) {
   if (!iso) return 0;
@@ -29,9 +32,7 @@ export function getArticleBySlug(slug) {
 export function getArticlesByTag(tagSlug) {
   if (!tagSlug) return [];
   return sortNewestFirst(
-    articles.filter((a) =>
-      (a.tags || []).some((t) => t.slug === tagSlug),
-    ),
+    articles.filter((a) => (a.tags || []).some((t) => t.slug === tagSlug)),
   );
 }
 
@@ -40,7 +41,11 @@ export function getAllTags() {
   for (const a of articles) {
     for (const t of a.tags || []) {
       if (!t?.slug) continue;
-      const prev = map.get(t.slug) || { name: t.name || t.slug, slug: t.slug, count: 0 };
+      const prev = map.get(t.slug) || {
+        name: t.name || t.slug,
+        slug: t.slug,
+        count: 0,
+      };
       prev.count += 1;
       prev.name = t.name || prev.name;
       map.set(t.slug, prev);
@@ -78,6 +83,10 @@ export function getRelatedArticles(article, limit = 3) {
   return scored.slice(0, cap).map((x) => x.article);
 }
 
+export function getRecentArticles(limit = 3) {
+  return sortNewestFirst(articles).slice(0, Math.max(0, limit));
+}
+
 export function getRecommendedArticles(limit = 5) {
   const cap = Math.max(0, limit);
   const rec = sortNewestFirst(articles.filter((a) => a.recommended));
@@ -113,12 +122,43 @@ export function formatDate(iso) {
   });
 }
 
-export function getArticleImageSrc(image) {
-  if (typeof image === "string") return image;
-  if (image && typeof image === "object" && "default" in image) {
-    return String(image.default);
+/** Prefer featuredImage; keep legacy `image` string support during transition. */
+export function getArticleFeaturedImage(article) {
+  if (!article) return "";
+  if (typeof article.featuredImage === "string" && article.featuredImage) {
+    return article.featuredImage;
+  }
+  if (typeof article.image === "string" && article.image.startsWith("/")) {
+    return article.image;
+  }
+  if (article.slug) return `/images/blog/${article.slug}.webp`;
+  return "";
+}
+
+/** @deprecated use getArticleFeaturedImage */
+export function getArticleImageSrc(imageOrArticle) {
+  if (imageOrArticle && typeof imageOrArticle === "object" && imageOrArticle.slug) {
+    return getArticleFeaturedImage(imageOrArticle);
+  }
+  if (typeof imageOrArticle === "string") return imageOrArticle;
+  if (imageOrArticle && typeof imageOrArticle === "object" && "default" in imageOrArticle) {
+    return String(imageOrArticle.default);
   }
   return "";
+}
+
+export function getArticleImageAlt(article) {
+  if (!article) return "";
+  return article.featuredImageAlt || article.imageAlt || article.title || "";
+}
+
+/** Absolute OG/JSON-LD image URL only when the file has been uploaded. */
+export function getArticleSocialImageUrl(article) {
+  if (!article?.slug || !isBlogImageAvailable(article.slug)) return undefined;
+  const src = getArticleFeaturedImage(article);
+  if (!src) return undefined;
+  if (/^https?:\/\//i.test(src)) return src;
+  return `${SITE_URL}${src.startsWith("/") ? "" : "/"}${src}`;
 }
 
 export function paginate(list, page) {
@@ -137,24 +177,21 @@ export function buildBlogPagesMeta() {
 
   const sorted = getAllArticles();
   const listDesc =
-    "Practical smoke shop and vape shop marketing insights on local SEO, Google Maps visibility, websites, reviews, and content—written for shop owners and operators.";
+    "Explore practical guides to smoke shop SEO, branding, website design and Google Maps visibility from Rank My Smoke Store.";
 
   out["/blog"] = {
-    title: "Blog | Rank My Smoke Store",
+    title: "Smoke Shop Marketing Blog | Rank My Smoke Store",
     description: listDesc,
     type: "website",
   };
 
   for (const a of sorted) {
     const path = `/blog/${a.slug}`;
-    const img = getArticleImageSrc(a.image);
-    const ogImage = img ? (img.startsWith("http") ? img : `${SITE_URL}${img.startsWith("/") ? "" : "/"}${img}`) : undefined;
-
     out[path] = {
       title: a.seoTitle || `${a.title} | Rank My Smoke Store`,
       description: a.description || a.excerpt || listDesc,
       type: "article",
-      ogImage,
+      ogImage: getArticleSocialImageUrl(a),
       article: a,
     };
   }

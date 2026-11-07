@@ -9,8 +9,8 @@ function BlogHeader() {
           <img
             src={topLogo}
             alt="Rank My Smoke Store"
-            width={180}
-            height={48}
+            width={120}
+            height={40}
             decoding="async"
           />
         </Link>
@@ -18,9 +18,6 @@ function BlogHeader() {
           <Link to="/blog" className="blog-header-link">
             Blog
           </Link>
-          <a href="/#booking-appointment" className="blog-header-cta btn btn-primary">
-            Book a Call
-          </a>
         </nav>
       </div>
     </header>

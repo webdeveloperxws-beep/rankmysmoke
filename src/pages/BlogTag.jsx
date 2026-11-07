@@ -5,6 +5,7 @@ import BlogHeader from "../components/BlogHeader";
 import BlogSidebar from "../components/BlogSidebar";
 import BlogPagination from "../components/BlogPagination";
 import BlogJsonLd from "../components/BlogJsonLd";
+import BlogImage from "../components/BlogImage";
 import BlogNotFound from "./BlogNotFound";
 import {
   SITE_URL,
@@ -12,36 +13,39 @@ import {
   getAllTags,
   getArticlesByTag,
   formatDate,
-  getArticleImageSrc,
 } from "../blog/data/index.js";
 import { useBlogSidebarFeed } from "../hooks/useBlogSidebarFeed.js";
 
 function TagArticleCard({ article }) {
-  const img = getArticleImageSrc(article.image);
   return (
     <article className="blog-card">
       <Link to={`/blog/${article.slug}`} className="blog-card-link">
-        {img ? (
-          <div className="blog-card-media">
-            <img
-              src={img}
-              alt={article.imageAlt || ""}
-              loading="lazy"
-              decoding="async"
-              className="blog-card-img"
-            />
-          </div>
-        ) : null}
+        <BlogImage
+          article={article}
+          className="blog-card-media"
+          loading="lazy"
+          width={800}
+          height={450}
+          sizes="(max-width: 575px) 100vw, (max-width: 991px) 50vw, 33vw"
+        />
         <div className="blog-card-body">
           <p className="blog-card-meta">
-            {article.category ? <span className="blog-card-cat">{article.category}</span> : null}
-            {article.category && article.publishedAt ? <span aria-hidden="true"> · </span> : null}
+            {article.category ? (
+              <span className="blog-card-cat">{article.category}</span>
+            ) : null}
+            {article.category && article.publishedAt ? (
+              <span aria-hidden="true"> · </span>
+            ) : null}
             {article.publishedAt ? (
-              <time dateTime={article.publishedAt}>{formatDate(article.publishedAt)}</time>
+              <time dateTime={article.publishedAt}>
+                {formatDate(article.publishedAt)}
+              </time>
             ) : null}
           </p>
           <h2 className="blog-card-title">{article.title}</h2>
-          {article.excerpt ? <p className="blog-card-excerpt">{article.excerpt}</p> : null}
+          {article.excerpt ? (
+            <p className="blog-card-excerpt">{article.excerpt}</p>
+          ) : null}
           <span className="blog-card-cta">Read article</span>
         </div>
       </Link>
@@ -54,16 +58,22 @@ function BlogTag() {
   const [searchParams] = useSearchParams();
 
   const tags = useMemo(() => getAllTags(), []);
-  const sidebarFeed = useBlogSidebarFeed(5);
+  const sidebarFeed = useBlogSidebarFeed(3);
 
   const tagInfo = tags.find((t) => t.slug === tagSlug);
 
   const rawPage = parseInt(searchParams.get("page") || "1", 10);
   const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
 
-  const articlesForTag = useMemo(() => (tagSlug ? getArticlesByTag(tagSlug) : []), [tagSlug]);
+  const articlesForTag = useMemo(
+    () => (tagSlug ? getArticlesByTag(tagSlug) : []),
+    [tagSlug],
+  );
 
-  const totalPages = Math.max(1, Math.ceil(articlesForTag.length / PAGE_SIZE) || 1);
+  const totalPages = Math.max(
+    1,
+    Math.ceil(articlesForTag.length / PAGE_SIZE) || 1,
+  );
   const currentPage = Math.min(Math.max(1, page), totalPages);
   const start = (currentPage - 1) * PAGE_SIZE;
   const gridArticles = articlesForTag.slice(start, start + PAGE_SIZE);
@@ -90,7 +100,10 @@ function BlogTag() {
     return (
       <>
         <BlogHeader />
-        <BlogNotFound title="Tag not found" message="We could not find that topic. Try another tag from the blog." />
+        <BlogNotFound
+          title="Tag not found"
+          message="We could not find that topic. Try another tag from the blog."
+        />
       </>
     );
   }
@@ -104,7 +117,8 @@ function BlogTag() {
           <header className="blog-tag-header">
             <h1 className="blog-page-title blog-tag-title">{tagInfo.name}</h1>
             <p className="blog-tag-count">
-              {articlesForTag.length} article{articlesForTag.length === 1 ? "" : "s"}
+              {articlesForTag.length} article
+              {articlesForTag.length === 1 ? "" : "s"}
             </p>
           </header>
 
@@ -113,14 +127,21 @@ function BlogTag() {
               {gridArticles.length === 0 ? (
                 <p className="blog-empty">No articles for this tag yet.</p>
               ) : (
-                <section className="blog-grid" aria-label={`Articles tagged ${tagInfo.name}`}>
+                <section
+                  className="blog-grid"
+                  aria-label={`Articles tagged ${tagInfo.name}`}
+                >
                   {gridArticles.map((a) => (
                     <TagArticleCard key={a.slug} article={a} />
                   ))}
                 </section>
               )}
 
-              <BlogPagination page={currentPage} totalPages={totalPages} basePath={basePath} />
+              <BlogPagination
+                page={currentPage}
+                totalPages={totalPages}
+                basePath={basePath}
+              />
             </div>
 
             <div className="col-lg-4 blog-layout-sidebar">
