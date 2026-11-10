@@ -1,0 +1,15 @@
+.backups
+.tools
+.tmp-lighthouse
+.tmp-blog-extract
+prerender-preview
+agent-transcripts
+.cursor
+.git
+node_modules
+.env
+.env.*
+*.zip
+rankmysmoke-hostinger-*.zip
+HOSTINGER-UPLOAD-README.txt
+backend
